@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سُفرة الشيف | المنيو الإلكتروني</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    .hidden{display:none!important}
+    body{font-family:'Cairo',sans-serif;background-color:#FDFBF7;color:#231815;-webkit-tap-highlight-color:transparent}
+    .no-scrollbar::-webkit-scrollbar{display:none}
+    .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+    .smooth-scroll{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+    .btn-brand{background-color:#7A1C1C;color:#fff;transition:background-color .18s,transform .12s}
+    .btn-brand:hover{background-color:#5A1212}
+    .btn-brand:active{transform:scale(.98)}
+    .modal-fade{animation:mfade .18s ease-out}
+    @keyframes mfade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+  <script>
+    window.handleBannerError = function(img) {
+      if (!img) return;
+      img.classList.add('hidden');
+      const wrap = img.closest('[data-banner-wrap]');
+      if (wrap) wrap.classList.add('h-28');
+    };
+  </script>
+</head>
+<body class="bg-[#FDFBF7] text-[#231815] antialiased">
+  <!-- Main Mobile-First Container (V8.6) -->
+  <div id="app" class="max-w-[480px] mx-auto min-h-screen flex flex-col bg-[#FDFBF7] shadow-xl shadow-[#7A1C1C]/10 relative">
+    <!-- Hero Banner & Floating Action Bar -->
+    <header class="relative bg-[#FDFBF7]">
+      <div id="bannerWrap" data-banner-wrap class="relative w-full h-48 overflow-hidden bg-gradient-to-br from-[#5A1212] via-[#7A1C1C] to-[#3B0B0B] transition-all">
+        <img id="bannerImg" src="" alt="غلاف المطعم" onerror="window.handleBannerError(this)" class="w-full h-full object-cover block" />
+        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/65 pointer-events-none"></div>
+        <!-- Top Overlay Controls -->
+        <div class="absolute top-3 inset-x-3 z-10 flex items-center justify-between gap-2">
+          <div id="statusBadge" class="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-full backdrop-blur-md border shadow-sm"></div>
+          <div class="flex items-center gap-1.5">
+            <a id="headerCallBtn" href="tel:01000000000" aria-label="اتصال" class="w-9 h-9 rounded-xl bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition">
+              <i data-lucide="phone" class="w-4 h-4"></i>
+            </a>
+            <button onclick="window.shareMenu()" aria-label="مشاركة" class="w-9 h-9 rounded-xl bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition">
+              <i data-lucide="share-2" class="w-4 h-4"></i>
+            </button>
+            <button onclick="window.openAdmin()" aria-label="الإدارة" class="w-9 h-9 rounded-xl bg-[#D4A017] hover:bg-[#b88910] text-[#231815] flex items-center justify-center transition shadow-md border border-white/25">
+              <i data-lucide="settings" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Overlapping Circular Logo & Restaurant Identity -->
+      <div class="relative z-10 -mt-12 px-4 pb-3 flex flex-col items-center text-center">
+        <div id="headerLogo" class="w-24 h-24 rounded-full bg-[#7A1C1C] p-1 ring-4 ring-[#FDFBF7] shadow-xl overflow-hidden flex items-center justify-center border-2 border-[#D4A017]"></div>
+        <h1 id="headerName" class="font-extrabold text-xl text-[#5A1212] mt-2 leading-tight">سُفرة الشيف</h1>
+        <p id="headerDesc" class="text-xs text-[#6B5B53] font-semibold mt-0.5 max-w-[340px]"></p>
+        <div id="headerMeta" class="flex items-center justify-center flex-wrap gap-2 mt-2 text-[11px] font-bold text-[#6B5B53]"></div>
+      </div>
+    </header>
+
+    <!-- Sticky Search & Category Tabs -->
+    <div class="px-4 pt-2.5 pb-2 sticky top-0 z-20 bg-[#FDFBF7]/95 backdrop-blur-md border-y border-[#EFE6D8]">
+      <div class="relative mb-2.5">
+        <i data-lucide="search" class="w-4 h-4 text-[#6B5B53] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+        <input id="searchInput" type="text" oninput="window.onSearch(this.value)" placeholder="ابحث في المنيو عن وجبتك المفضلة..." class="w-full bg-white border border-[#EFE6D8] rounded-xl pr-10 pl-4 py-2.5 text-sm text-[#231815] placeholder-[#6B5B53]/70 focus:outline-none focus:border-[#7A1C1C] focus:ring-2 focus:ring-[#7A1C1C]/15 transition" />
+      </div>
+      <div id="catTabs" class="flex items-center gap-2 overflow-x-auto no-scrollbar smooth-scroll pb-1"></div>
+    </div>
+
+    <!-- Menu Items List -->
+    <main id="menuList" class="flex-1 px-4 py-3 space-y-3 pb-24"></main>
+
+    <!-- Footer -->
+    <footer id="footerContent" class="mt-auto bg-[#231815] text-[#FDFBF7] px-4 pt-6 pb-24 rounded-t-3xl border-t-4 border-[#D4A017]"></footer>
+
+    <!-- Floating Bottom Cart Bar -->
+    <div id="cartBar" class="hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-30 p-3 bg-gradient-to-t from-[#FDFBF7] via-[#FDFBF7]/95 to-transparent">
+      <button onclick="window.openCart()" class="w-full btn-brand rounded-2xl px-4 py-3.5 shadow-lg shadow-[#7A1C1C]/35 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span id="cartCount" class="w-7 h-7 rounded-lg bg-[#D4A017] text-[#231815] font-extrabold text-sm flex items-center justify-center">0</span>
+          <span class="font-bold text-sm">مراجعة وإتمام الطلب</span>
+        </div>
+        <span id="cartSubtotal" class="font-extrabold text-sm bg-white/15 px-3 py-1 rounded-xl">0 ج.م</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Single Dynamic Modal Container -->
+  <div id="modalContainer"></div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-[420px] pointer-events-none flex flex-col gap-2"></div>
+
+  <script>
+    /*MT_CFG_START*/
+    let DEFAULT_VIEW_ONLY = false;
+    let DEFAULT_SHEET_URL = "";
+    let DEFAULT_PASS_HASH = "mt_210999241";
+    let DEFAULT_DATA = {
+      name: "سُفرة الشيف",
+      desc: "أشهى المشويات والطواجن الشرقية الأصيلة على الفحم",
+      phone: "01000000000",
+      whatsapp: "201133656185",
+      instapay: "sofra.chef@instapay",
+      address: "القاهرة - شارع عباس العقاد، مدينة نصر",
+      openTime: "12:00",
+      closeTime: "02:00",
+      bannerUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1000&q=80",
+      logoUrl: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='40%25' r='65%25'%3E%3Cstop offset='0%25' stop-color='%239B2424'/%3E%3Cstop offset='100%25' stop-color='%235A1212'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='60' cy='60' r='58' fill='url(%23g)' stroke='%23D4A017' stroke-width='4'/%3E%3Ccircle cx='60' cy='60' r='50' fill='none' stroke='%23D4A017' stroke-width='1.5' stroke-dasharray='4 3' opacity='.85'/%3E%3Cpath d='M40 58c-7 0-12-5-12-11s5-11 11-11c2-8 10-14 21-14s19 6 21 14c6 0 11 5 11 11s-5 11-12 11v12H40V58z' fill='%23FDFBF7' stroke='%23D4A017' stroke-width='2.5' stroke-linejoin='round'/%3E%3Crect x='40' y='64' width='40' height='6' rx='2' fill='%23D4A017'/%3E%3Cpath d='M30 82h60c-3 7-15 11-30 11s-27-4-30-11z' fill='%23D4A017'/%3E%3Cpath d='M48 78h24' stroke='%23FDFBF7' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='30' cy='60' r='2.5' fill='%23D4A017'/%3E%3Ccircle cx='90' cy='60' r='2.5' fill='%23D4A017'/%3E%3C/svg%3E",
+      facebook: "https://facebook.com",
+      instagram: "https://instagram.com",
+      tiktok: "",
+      mapsUrl: "https://maps.google.com/?q=30.0561,31.3301",
+      couponsEnabled: true,
+      items: [
+        { id: "i1", name: "مشكل مشويات الشيف على الفحم", category: "المشويات", price: 320, desc: "كباب ضاني، كفتة بلدي، وشيش طاووق مع أرز بسمتي وسلطات", image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80", available: true },
+        { id: "i2", name: "كفتة ضاني مشوية", category: "المشويات", price: 225, desc: "سيخين كفتة متبلة على الفحم مع طحينة وعيش بلدي ساخن", image: "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=400&q=80", available: true },
+        { id: "i3", name: "شيش طاووق على الفحم", category: "المشويات", price: 195, desc: "قطع دجاج مشوية بتتبيلة الشيف الخاصة مع ثومية وبطاطس", image: "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&w=400&q=80", available: true },
+        { id: "i4", name: "طاجن عكاوي بالبصل المكرمل", category: "الطواجن", price: 290, desc: "عكاوي مطهوة ببطء في الفرن الفلاحي مع بصل وتوابل شرقية", image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=400&q=80", available: true },
+        { id: "i5", name: "طاجن موزة ضاني بالفريك", category: "الطواجن", price: 340, desc: "موزة ضاني طرية فوق فريك بلدي بالسمنة البلدي والمكسرات", image: "https://images.unsplash.com/photo-1574484284002-952d92456975?auto=format&fit=crop&w=400&q=80", available: true },
+        { id: "i6", name: "طاجن بامية باللحمة الضاني", category: "الطواجن", price: 215, desc: "بامية بلدي بصلصة الطماطم الطازجة وقطع اللحم الضاني", image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=400&q=80", available: true },
+        { id: "i7", name: "ورق عنب بدبس الرمان", category: "المقبلات", price: 95, desc: "أصابع ورق عنب طازجة غنية بزيت الزيتون ودبس الرمان", image: "https://images.unsplash.com/photo-1626200419199-391ae4be7a41?auto=format&fit=crop&w=400&q=80", available: true },
+        { id: "i8", name: "سمبوسك جبنة ولحمة", category: "المقبلات", price: 80, desc: "6 قطع سمبوسك مقرمشة ذهبية بحشوة مشكلة", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=400&q=80", available: true },
+        { id: "i9", name: "عصير مانجو فريش", category: "المشروبات", price: 60, desc: "مانجو طبيعي 100% بارد ومنعش بدون إضافات", image: "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?auto=format&fit=crop&w=400&q=80", available: true },
+        { id: "i10", name: "كركديه مثلج بالنعناع", category: "المشروبات", price: 40, desc: "كركديه أسواني أصلي بارد مع لمسة نعناع طازج", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80", available: true }
+      ],
+      zones: [
+        { name: "مدينة نصر", fee: 25 },
+        { name: "مصر الجديدة", fee: 35 },
+        { name: "التجمع الخامس", fee: 50 }
+      ],
+      addons: [
+        { name: "صوص ثومية", price: 15 },
+        { name: "أرز بسمتي إضافي", price: 30 },
+        { name: "خبز محمص بالثوم", price: 20 }
+      ],
+      coupons: [
+        { code: "WELCOME10", type: "percent", value: 10, active: true }
+      ]
+    };
+    /*MT_CFG_END*/
+
+    const STORE_ID = "mt_sofra_chef";
+    const DEV_WA = "https://wa.me/201133656185";
+    const checkVendorKey = (k) => k.trim().split('').map(c => c.charCodeAt(0) + 7).join(',') === '84,91,52,87,89,86,52,57,55,57,61';
+    const MONOGRAM_SVG = `<svg viewBox="0 0 80 80" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#7A1C1C"/><circle cx="40" cy="40" r="35" fill="none" stroke="#D4A017" stroke-width="2.5"/>
+      <text x="40" y="48" text-anchor="middle" fill="#FDFBF7" font-family="Cairo,sans-serif" font-weight="800" font-size="24">س ش</text>
+    </svg>`;
+
+    // Core Utilities: Sanitization, Arabic Digits, Pure-JS Hash, Isolated Storage, Drive URL Converter
+    const sanitize = (s) => String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    const normalizeArabicInput = (s) => String(s ?? '').replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]).replace(/[۰-۹]/g, d => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)]).trim();
+    const simpleHash = (s) => { let h = 7; for (let i = 0; i < s.length; i++) h = (h * 17 + s.charCodeAt(i)) % 1000000007; return 'mt_' + h; };
+    const lsGet = (k, fb) => { try { const v = localStorage.getItem(STORE_ID + '_' + k); return v !== null ? JSON.parse(v) : fb; } catch { return fb; } };
+    const lsSet = (k, v) => { try { localStorage.setItem(STORE_ID + '_' + k, JSON.stringify(v)); } catch { showToast('مساحة التخزين ممتلئة، استخدم رابط صورة أو صورة أصغر', 'error'); } };
+    const formatDirectImageUrl = (url) => {
+      const u = String(url || '').trim();
+      if (!u) return '';
+      if (u.startsWith('data:image/')) return u;
+      const m = u.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/) || u.match(/drive\.google\.com.*[?&]id=([a-zA-Z0-9_-]+)/);
+      return m ? `https://lh3.googleusercontent.com/d/${m[1]}` : u;
+    };
+
+    // Application State
+    let state = {
+      data: Object.assign(JSON.parse(JSON.stringify(DEFAULT_DATA)), lsGet('data', {})),
+      viewOnlyMode: lsGet('viewOnly', DEFAULT_VIEW_ONLY),
+      sheetUrl: lsGet('sheetUrl', DEFAULT_SHEET_URL),
+      passHash: lsGet('passHash', DEFAULT_PASS_HASH),
+      cart: lsGet('cart', []),
+      activeCat: 'الكل',
+      search: '',
+      adminAuth: false,
+      adminTab: 'settings',
+      vendorUnlocked: false,
+      editingItemId: null,
+      confirmReset: false,
+      order: { type: 'delivery', table: '', name: '', phone: '', address: '', zoneIdx: 0, gps: '', pay: 'cash', coupon: null }
+    };
+
+    const saveData = () => lsSet('data', state.data);
+    const saveCart = () => lsSet('cart', state.cart);
+
+    // Toast & Clipboard (iframe-safe execCommand)
+    function showToast(msg, type = 'info') {
+      const box = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      const bg = type === 'error' ? 'bg-[#7A1C1C]' : type === 'success' ? 'bg-emerald-700' : 'bg-[#231815]';
+      el.className = `${bg} text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg text-center modal-fade pointer-events-auto border border-white/15`;
+      el.textContent = msg;
+      box.appendChild(el);
+      setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .25s'; setTimeout(() => el.remove(), 250); }, 2800);
+    }
+
+    function copyText(txt, okMsg = 'تم النسخ بنجاح') {
+      const ta = document.createElement('textarea');
+      ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showToast(okMsg, 'success'); } catch { showToast('تعذر النسخ', 'error'); }
+      ta.remove();
+    }
+
+    // Smart Working Hours Checker (Supports Midnight Crossover)
+    function isRestaurantOpen() {
+      const toMin = (t) => { const p = normalizeArabicInput(t || '').split(':'); return p.length === 2 ? (parseInt(p[0], 10) * 60 + parseInt(p[1], 10)) : 0; };
+      const o = toMin(state.data.openTime || '12:00'), c = toMin(state.data.closeTime || '02:00');
+      if (o === c) return true;
+      const now = new Date(), n = now.getHours() * 60 + now.getMinutes();
+      return c > o ? (n >= o && n < c) : (n >= o || n < c);
+    }
+
+    // Canvas Image Compressor (320px for Logo, 1000px for Banner, 800px for Items)
+    function compressImage(file, maxW, quality, cb) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, maxW / img.width);
+          const cv = document.createElement('canvas');
+          cv.width = Math.round(img.width * scale); cv.height = Math.round(img.height * scale);
+          cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+          cb(cv.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => showToast('تعذر قراءة الصورة المختارة', 'error');
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Main Render Engine
+    function renderAll() {
+      const d = state.data;
+      document.title = `${d.name} | المنيو الإلكتروني`;
+      document.getElementById('headerName').textContent = d.name;
+      document.getElementById('headerDesc').textContent = d.desc || '';
+      document.getElementById('headerCallBtn').href = 'tel:' + normalizeArabicInput(d.phone);
+      document.getElementById('headerMeta').innerHTML = `
+        <span class="inline-flex items-center gap-1 bg-white border border-[#EFE6D8] px-2.5 py-1 rounded-full"><i data-lucide="clock" class="w-3 h-3 text-[#D4A017]"></i>${sanitize(d.openTime)} - ${sanitize(d.closeTime)}</span>
+        ${d.address ? `<span class="inline-flex items-center gap-1 bg-white border border-[#EFE6D8] px-2.5 py-1 rounded-full max-w-[230px] truncate"><i data-lucide="map-pin" class="w-3 h-3 text-[#7A1C1C] shrink-0"></i><span class="truncate">${sanitize(d.address)}</span></span>` : ''}`;
+
+      // Render Hero Banner
+      const bWrap = document.getElementById('bannerWrap'), bImg = document.getElementById('bannerImg');
+      const bSrc = formatDirectImageUrl(d.bannerUrl);
+      if (bSrc) {
+        bWrap.classList.remove('h-28'); bWrap.classList.add('h-48');
+        bImg.src = bSrc; bImg.classList.remove('hidden');
+      } else {
+        bImg.classList.add('hidden'); bWrap.classList.remove('h-48'); bWrap.classList.add('h-28');
+      }
+
+      // Render Circular Overlapping Logo (with 4-line Monogram Fallback)
+      const logoSrc = formatDirectImageUrl(d.logoUrl);
+      document.getElementById('headerLogo').innerHTML = logoSrc
+        ? `<img src="${sanitize(logoSrc)}" alt="شعار ${sanitize(d.name)}" class="w-full h-full rounded-full object-cover" onerror="this.parentElement.innerHTML=MONOGRAM_SVG" />`
+        : MONOGRAM_SVG;
+
+      // Status Badge
+      const open = isRestaurantOpen();
+      const sb = document.getElementById('statusBadge');
+      sb.className = `inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-full backdrop-blur-md border shadow-sm ${open ? 'bg-emerald-950/65 text-emerald-100 border-emerald-400/40' : 'bg-red-950/75 text-amber-100 border-red-400/40'}`;
+      sb.innerHTML = `<span class="w-2 h-2 rounded-full ${open ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}"></span>${open ? 'مفتوح الآن' : 'مغلق الآن'}`;
+
+      renderCategories();
+      renderMenu();
+      renderCartBar();
+      renderFooter();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderCategories() {
+      const cats = ['الكل', ...new Set(state.data.items.map(i => i.category).filter(Boolean))];
+      if (!cats.includes(state.activeCat)) state.activeCat = 'الكل';
+      document.getElementById('catTabs').innerHTML = cats.map(c => {
+        const act = c === state.activeCat;
+        return `<button onclick="window.selectCategory('${sanitize(c).replace(/'/g, "\\'")}')" class="shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition border ${act ? 'bg-[#7A1C1C] text-white border-[#7A1C1C] shadow-sm' : 'bg-white text-[#6B5B53] border-[#EFE6D8] hover:border-[#D4A017]'}">${sanitize(c)}</button>`;
+      }).join('');
+    }
+
+    function renderMenu() {
+      const q = normalizeArabicInput(state.search).toLowerCase();
+      const filtered = state.data.items.filter(i => (state.activeCat === 'الكل' || i.category === state.activeCat) && (!q || i.name.toLowerCase().includes(q) || (i.desc || '').toLowerCase().includes(q) || i.category.toLowerCase().includes(q)));
+      const list = document.getElementById('menuList');
+      if (!filtered.length) {
+        list.innerHTML = `<div class="text-center py-14 text-[#6B5B53]"><i data-lucide="utensils" class="w-10 h-10 mx-auto mb-2 opacity-40"></i><p class="font-bold text-sm">لا توجد أصناف مطابقة للبحث</p></div>`;
+        return;
+      }
+      list.innerHTML = filtered.map(item => {
+        const imgSrc = formatDirectImageUrl(item.image);
+        const avail = item.available !== false;
+        const ic = item.category.includes('مشروب') ? 'cup-soda' : item.category.includes('مشوي') ? 'flame' : 'utensils-crossed';
+        const fallbackDiv = `<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#FDFBF7] to-[#EFE6D8] text-[#7A1C1C]/60"><i data-lucide="${ic}" class="w-7 h-7"></i></div>`;
+        const thumb = imgSrc
+          ? `<img src="${sanitize(imgSrc)}" alt="${sanitize(item.name)}" class="w-full h-full object-cover" onerror="this.outerHTML='${fallbackDiv.replace(/"/g, '&quot;')}';if(window.lucide)lucide.createIcons();" />`
+          : fallbackDiv;
+        const actionBtn = !state.viewOnlyMode
+          ? (avail ? `<button onclick="window.openItemModal('${sanitize(item.id)}')" class="btn-brand text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm shrink-0">+ أضف</button>` : `<span class="text-[11px] font-bold px-2.5 py-1.5 rounded-xl bg-stone-200 text-stone-500">غير متاح</span>`)
+          : (!avail ? `<span class="text-[11px] font-bold px-2.5 py-1.5 rounded-xl bg-stone-200 text-stone-500">غير متاح</span>` : '');
+        return `
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3 shadow-sm hover:shadow-md transition flex gap-3 items-stretch ${!avail ? 'opacity-70' : ''}">
+            <div class="w-24 h-24 rounded-xl overflow-hidden border border-[#EFE6D8] shrink-0 bg-[#FDFBF7]">${thumb}</div>
+            <div class="flex-1 min-w-0 flex flex-col justify-between">
+              <div>
+                <h3 class="font-extrabold text-sm text-[#231815] leading-snug">${sanitize(item.name)}</h3>
+                <p class="text-xs text-[#6B5B53] mt-1 line-clamp-2 leading-relaxed">${sanitize(item.desc)}</p>
+              </div>
+              <div class="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-[#FDFBF7]">
+                <span class="font-extrabold text-sm text-[#7A1C1C]">${Number(item.price)} <span class="text-[11px] font-bold text-[#D4A017]">ج.م</span></span>
+                ${actionBtn}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderCartBar() {
+      const bar = document.getElementById('cartBar');
+      if (state.viewOnlyMode || !state.cart.length) { bar.classList.add('hidden'); return; }
+      const qty = state.cart.reduce((s, c) => s + c.qty, 0);
+      const sub = state.cart.reduce((s, c) => s + c.unitPrice * c.qty, 0);
+      document.getElementById('cartCount').textContent = qty;
+      document.getElementById('cartSubtotal').textContent = `${sub} ج.م`;
+      bar.classList.remove('hidden');
+    }
+
+    function renderFooter() {
+      const d = state.data;
+      const socials = [
+        { url: d.facebook, label: 'فيسبوك', icon: 'facebook' },
+        { url: d.instagram, label: 'إنستجرام', icon: 'instagram' },
+        { url: d.tiktok, label: 'تيك توك', icon: 'music-2' },
+        { url: d.mapsUrl, label: 'الخريطة', icon: 'map-pin' }
+      ].filter(s => s.url && s.url.trim());
+      document.getElementById('footerContent').innerHTML = `
+        <div class="space-y-3 text-center">
+          <h4 class="font-extrabold text-base text-[#D4A017]">${sanitize(d.name)}</h4>
+          <div class="text-xs text-[#FDFBF7]/80 space-y-1.5">
+            ${d.address ? `<p class="flex items-center justify-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#D4A017]"></i>${sanitize(d.address)}</p>` : ''}
+            ${d.phone ? `<p class="flex items-center justify-center gap-1.5"><i data-lucide="phone" class="w-3.5 h-3.5 text-[#D4A017]"></i><a href="tel:${sanitize(normalizeArabicInput(d.phone))}" class="hover:underline">${sanitize(d.phone)}</a></p>` : ''}
+            <p class="flex items-center justify-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-[#D4A017]"></i>مواعيد العمل: ${sanitize(d.openTime)} - ${sanitize(d.closeTime)}</p>
+          </div>
+          ${socials.length ? `<div class="flex items-center justify-center flex-wrap gap-2 pt-1">${socials.map(s => `<a href="${sanitize(s.url)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-bold bg-white/10 hover:bg-[#D4A017] hover:text-[#231815] px-3 py-1.5 rounded-xl transition"><i data-lucide="${s.icon}" class="w-3.5 h-3.5"></i>${s.label}</a>`).join('')}</div>` : ''}
+          <div class="pt-3 border-t border-white/10">
+            <a href="${DEV_WA}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs font-bold text-[#D4A017] hover:text-amber-300 transition">تم التطوير بواسطة مَنظومة تك ⚡</a>
+          </div>
+        </div>`;
+    }
+
+    // Modal Helper
+    function openModal(html) {
+      document.getElementById('modalContainer').innerHTML = `
+        <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px] flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="if(event.target===this)window.closeModal()">
+          <div class="bg-[#FDFBF7] w-full max-w-[480px] max-h-[92vh] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden modal-fade border border-[#EFE6D8]">
+            ${html}
+          </div>
+        </div>`;
+      if (window.lucide) lucide.createIcons();
+    }
+    window.closeModal = () => { document.getElementById('modalContainer').innerHTML = ''; state.confirmReset = false; };
+    window.onSearch = (v) => { state.search = v; renderMenu(); if (window.lucide) lucide.createIcons(); };
+    window.selectCategory = (c) => { state.activeCat = c; renderCategories(); renderMenu(); if (window.lucide) lucide.createIcons(); };
+    window.shareMenu = () => {
+      const shareData = { title: state.data.name, text: `تصفح منيو ${state.data.name} الإلكتروني`, url: location.href };
+      if (navigator.share) navigator.share(shareData).catch(() => copyText(location.href, 'تم نسخ رابط المنيو'));
+      else copyText(location.href, 'تم نسخ رابط المنيو');
+    };
+
+    // Item Customization Modal
+    let activeItemModal = null;
+    window.openItemModal = (id) => {
+      const item = state.data.items.find(i => i.id === id);
+      if (!item || state.viewOnlyMode) return;
+      activeItemModal = { item, qty: 1, addons: [], note: '' };
+      const imgSrc = formatDirectImageUrl(item.image);
+      openModal(`
+        <div class="bg-[#7A1C1C] text-white px-4 py-3.5 flex items-center justify-between shrink-0">
+          <h3 class="font-extrabold text-sm truncate">${sanitize(item.name)}</h3>
+          <button onclick="window.closeModal()" class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+          ${imgSrc ? `<img src="${sanitize(imgSrc)}" class="w-full h-40 object-cover rounded-2xl border border-[#EFE6D8]" onerror="this.classList.add('hidden')" />` : ''}
+          <div>
+            <p class="text-xs text-[#6B5B53] leading-relaxed">${sanitize(item.desc)}</p>
+            <p class="text-sm font-extrabold text-[#7A1C1C] mt-1">السعر الأساسي: ${Number(item.price)} ج.م</p>
+          </div>
+          <div class="flex items-center justify-between bg-white border border-[#EFE6D8] rounded-xl p-3">
+            <span class="text-xs font-extrabold">الكمية</span>
+            <div class="flex items-center gap-3">
+              <button onclick="window.stepModalQty(-1)" class="w-8 h-8 rounded-lg bg-[#FDFBF7] border border-[#EFE6D8] font-extrabold text-[#7A1C1C]">-</button>
+              <span id="modalItemQty" class="font-extrabold text-sm w-5 text-center">1</span>
+              <button onclick="window.stepModalQty(1)" class="w-8 h-8 rounded-lg bg-[#7A1C1C] text-white font-extrabold">+</button>
+            </div>
+          </div>
+          ${state.data.addons.length ? `
+            <div class="space-y-2">
+              <label class="text-xs font-extrabold block">إضافات اختيارية</label>
+              ${state.data.addons.map((a, idx) => `
+                <label class="flex items-center justify-between bg-white border border-[#EFE6D8] rounded-xl px-3 py-2.5 cursor-pointer hover:border-[#D4A017]">
+                  <div class="flex items-center gap-2.5"><input type="checkbox" onchange="window.toggleModalAddon(${idx},this.checked)" class="w-4 h-4 accent-[#7A1C1C] rounded" /><span class="text-xs font-bold">${sanitize(a.name)}</span></div>
+                  <span class="text-xs font-extrabold text-[#D4A017]">+${Number(a.price)} ج.م</span>
+                </label>`).join('')}
+            </div>` : ''}
+          <div>
+            <label class="text-xs font-extrabold block mb-1.5">ملاحظات خاصة</label>
+            <input id="modalItemNote" type="text" placeholder="مثال: تسوية زيادة، بدون بصل..." class="w-full bg-white border border-[#EFE6D8] rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7A1C1C]" />
+          </div>
+        </div>
+        <div class="p-4 bg-white border-t border-[#EFE6D8] shrink-0">
+          <button id="modalAddBtn" onclick="window.confirmAddToCart()" class="w-full btn-brand rounded-xl py-3 font-extrabold text-sm">إضافة للسلة • ${Number(item.price)} ج.م</button>
+        </div>`);
+    };
+
+    function updateModalItemPrice() {
+      const addSum = activeItemModal.addons.reduce((s, a) => s + Number(a.price), 0);
+      const tot = (Number(activeItemModal.item.price) + addSum) * activeItemModal.qty;
+      const btn = document.getElementById('modalAddBtn');
+      if (btn) btn.textContent = `إضافة للسلة • ${tot} ج.م`;
+    }
+    window.stepModalQty = (d) => { activeItemModal.qty = Math.max(1, activeItemModal.qty + d); document.getElementById('modalItemQty').textContent = activeItemModal.qty; updateModalItemPrice(); };
+    window.toggleModalAddon = (idx, checked) => {
+      const a = state.data.addons[idx]; if (!a) return;
+      if (checked) activeItemModal.addons.push(a); else activeItemModal.addons = activeItemModal.addons.filter(x => x.name !== a.name);
+      updateModalItemPrice();
+    };
+    window.confirmAddToCart = () => {
+      const note = (document.getElementById('modalItemNote')?.value || '').trim();
+      const unitPrice = Number(activeItemModal.item.price) + activeItemModal.addons.reduce((s, a) => s + Number(a.price), 0);
+      const addons = activeItemModal.addons.map(a => a.name).sort();
+      const key = activeItemModal.item.id + '|' + addons.join(',') + '|' + note;
+      const ex = state.cart.find(c => c.key === key);
+      if (ex) ex.qty += activeItemModal.qty; else state.cart.push({ key, id: activeItemModal.item.id, name: activeItemModal.item.name, unitPrice, qty: activeItemModal.qty, addons, note });
+      saveCart(); renderCartBar(); window.closeModal(); showToast('تمت الإضافة للسلة', 'success');
+    };
+
+    // Pro Cart & Checkout Modal
+    function calcTotals() {
+      const subtotal = state.cart.reduce((s, c) => s + c.unitPrice * c.qty, 0);
+      let discount = 0;
+      if (state.data.couponsEnabled && state.order.coupon) {
+        const cp = state.order.coupon;
+        discount = cp.type === 'percent' ? Math.round(subtotal * (Number(cp.value) / 100)) : Math.min(subtotal, Number(cp.value));
+      }
+      const zone = state.data.zones[state.order.zoneIdx] || state.data.zones[0] || { name: '', fee: 0 };
+      const deliveryFee = state.order.type === 'delivery' ? Number(zone.fee || 0) : 0;
+      return { subtotal, discount, deliveryFee, total: Math.max(0, subtotal - discount + deliveryFee), zone };
+    }
+
+    window.openCart = () => {
+      if (state.viewOnlyMode) return;
+      const open = isRestaurantOpen(), t = calcTotals(), o = state.order;
+      const itemsHtml = state.cart.length ? state.cart.map((c, idx) => `
+        <div class="bg-white border border-[#EFE6D8] rounded-xl p-3 flex items-start justify-between gap-2">
+          <div class="min-w-0 flex-1">
+            <h4 class="font-extrabold text-xs">${sanitize(c.name)}</h4>
+            ${c.addons.length ? `<p class="text-[11px] text-[#D4A017] font-bold mt-0.5">+ ${sanitize(c.addons.join('، '))}</p>` : ''}
+            ${c.note ? `<p class="text-[11px] text-[#6B5B53] mt-0.5">ملاحظة: ${sanitize(c.note)}</p>` : ''}
+            <p class="text-xs font-extrabold text-[#7A1C1C] mt-1">${c.unitPrice * c.qty} ج.م</p>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="window.cartStep(${idx},-1)" class="w-7 h-7 rounded-lg bg-[#FDFBF7] border border-[#EFE6D8] font-bold text-xs">-</button>
+            <span class="text-xs font-extrabold w-5 text-center">${c.qty}</span>
+            <button onclick="window.cartStep(${idx},1)" class="w-7 h-7 rounded-lg bg-[#7A1C1C] text-white font-bold text-xs">+</button>
+            <button onclick="window.cartRemove(${idx})" class="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>`).join('') : `<div class="text-center py-8 text-xs text-[#6B5B53] font-bold">السلة فارغة حالياً</div>`;
+
+      const typeFields = o.type === 'dinein'
+        ? `<input type="text" value="${sanitize(o.table)}" oninput="window.setOrderField('table',this.value)" placeholder="رقم الطاولة (إجباري) *" class="w-full bg-white border border-[#EFE6D8] rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7A1C1C]" />`
+        : o.type === 'takeaway'
+        ? `<div class="grid grid-cols-2 gap-2"><input type="text" value="${sanitize(o.name)}" oninput="window.setOrderField('name',this.value)" placeholder="الاسم *" class="bg-white border border-[#EFE6D8] rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7A1C1C]" /><input type="tel" value="${sanitize(o.phone)}" oninput="window.setOrderField('phone',this.value)" placeholder="رقم الموبايل *" class="bg-white border border-[#EFE6D8] rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7A1C1C]" /></div>`
+        : `<div class="space-y-2">
+            <select onchange="window.setOrderZone(this.value)" class="w-full bg-white border border-[#EFE6D8] rounded-xl px-3 py-2.5 text-xs font-bold focus:outline-none focus:border-[#7A1C1C]">
+              ${state.data.zones.map((z, i) => `<option value="${i}" ${Number(o.zoneIdx) === i ? 'selected' : ''}>منطقة التوصيل: ${sanitize(z.name)} (${z.fee} ج.م)</option>`).join('')}
+            </select>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="text" value="${sanitize(o.name)}" oninput="window.setOrderField('name',this.value)" placeholder="الاسم *" class="bg-white border border-[#EFE6D8] rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7A1C1C]" />
+              <input type="tel" value="${sanitize(o.phone)}" oninput="window.setOrderField('phone',this.value)" placeholder="رقم الموبايل *" class="bg-white border border-[#EFE6D8] rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7A1C1C]" />
+            </div>
+            <textarea rows="2" oninput="window.setOrderField('address',this.value)" placeholder="العنوان بالتفصيل (الشارع، العمارة، الدور، الشقة) *" class="w-full bg-white border border-[#EFE6D8] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#7A1C1C]">${sanitize(o.address)}</textarea>
+            <button type="button" onclick="window.getGpsLocation()" class="w-full py-2 px-3 rounded-xl border border-[#D4A017] bg-amber-50 text-[#7A1C1C] text-xs font-bold flex items-center justify-center gap-1.5">
+              <i data-lucide="locate-fixed" class="w-4 h-4 text-[#D4A017]"></i>${o.gps ? 'تم تحديد موقعك عبر GPS ✓ (تحديث)' : 'تحديد موقعي تلقائياً (GPS)'}
+            </button>
+          </div>`;
+
+      openModal(`
+        <div class="bg-[#7A1C1C] text-white px-4 py-3.5 flex items-center justify-between shrink-0">
+          <h3 class="font-extrabold text-sm flex items-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4 text-[#D4A017]"></i>سلة الطلبات</h3>
+          <button onclick="window.closeModal()" class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+          ${!open ? `<div class="bg-red-50 border border-red-200 text-red-800 rounded-xl p-3 text-xs font-bold text-center">المطعم مغلق حالياً (${sanitize(state.data.openTime)} - ${sanitize(state.data.closeTime)}). الطلب غير متاح خارج مواعيد العمل.</div>` : ''}
+          <div class="space-y-2">${itemsHtml}</div>
+          ${state.cart.length ? `
+            <div class="space-y-2">
+              <label class="text-xs font-extrabold block">طريقة الاستلام</label>
+              <div class="grid grid-cols-3 gap-2">
+                ${[['dinein', 'صالة', 'utensils'], ['takeaway', 'تيك أواي', 'shopping-bag'], ['delivery', 'توصيل', 'bike']].map(([k, lbl, ic]) => `
+                  <button onclick="window.setOrderType('${k}')" class="py-2.5 px-2 rounded-xl text-xs font-extrabold border flex items-center justify-center gap-1 transition ${o.type === k ? 'bg-[#7A1C1C] text-white border-[#7A1C1C]' : 'bg-white text-[#6B5B53] border-[#EFE6D8]'}">
+                    <i data-lucide="${ic}" class="w-3.5 h-3.5"></i>${lbl}
+                  </button>`).join('')}
+              </div>
+              <div class="pt-1">${typeFields}</div>
+            </div>
+            ${state.data.couponsEnabled ? `
+              <div class="bg-white border border-[#EFE6D8] rounded-xl p-3 space-y-2">
+                <label class="text-xs font-extrabold block">كود الخصم</label>
+                ${o.coupon
+                  ? `<div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-xs font-bold text-emerald-800"><span>تم تطبيق: ${sanitize(o.coupon.code)} (${o.coupon.type === 'percent' ? o.coupon.value + '%' : o.coupon.value + ' ج.م'})</span><button onclick="window.removeCoupon()" class="text-red-600 underline">إزالة</button></div>`
+                  : `<div class="flex gap-2"><input id="couponInput" type="text" placeholder="أدخل الكود (WELCOME10)" class="flex-1 bg-[#FDFBF7] border border-[#EFE6D8] rounded-xl px-3 py-2 text-xs uppercase focus:outline-none focus:border-[#7A1C1C]" /><button onclick="window.applyCoupon()" class="px-4 py-2 rounded-xl bg-[#D4A017] text-[#231815] font-extrabold text-xs">تطبيق</button></div>`}
+              </div>` : ''}
+            <div class="space-y-2">
+              <label class="text-xs font-extrabold block">طريقة الدفع</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="window.setOrderPay('cash')" class="py-2.5 rounded-xl text-xs font-extrabold border ${o.pay === 'cash' ? 'bg-[#7A1C1C] text-white border-[#7A1C1C]' : 'bg-white text-[#6B5B53] border-[#EFE6D8]'}">كاش عند الاستلام</button>
+                <button onclick="window.setOrderPay('instapay')" class="py-2.5 rounded-xl text-xs font-extrabold border ${o.pay === 'instapay' ? 'bg-[#7A1C1C] text-white border-[#7A1C1C]' : 'bg-white text-[#6B5B53] border-[#EFE6D8]'}">إنستاباي (InstaPay)</button>
+              </div>
+              ${o.pay === 'instapay' && state.data.instapay ? `<div class="bg-amber-50 border border-[#D4A017]/50 rounded-xl p-2.5 flex items-center justify-between gap-2 text-xs"><div><span class="text-[#6B5B53] block text-[11px]">حساب إنستاباي:</span><strong class="text-[#7A1C1C] select-all">${sanitize(state.data.instapay)}</strong></div><button onclick="window.copyInstaPay()" class="px-3 py-1.5 rounded-lg bg-[#D4A017] text-[#231815] font-extrabold text-[11px]">نسخ</button></div>` : ''}
+            </div>
+            <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-1.5 text-xs">
+              <div class="flex justify-between text-[#6B5B53]"><span>المجموع الفرعي</span><strong>${t.subtotal} ج.م</strong></div>
+              ${t.discount > 0 ? `<div class="flex justify-between text-emerald-700"><span>الخصم</span><strong>- ${t.discount} ج.م</strong></div>` : ''}
+              ${o.type === 'delivery' ? `<div class="flex justify-between text-[#6B5B53]"><span>التوصيل (${sanitize(t.zone.name)})</span><strong>${t.deliveryFee} ج.م</strong></div>` : ''}
+              <div class="flex justify-between text-sm font-extrabold text-[#7A1C1C] pt-2 border-t border-[#EFE6D8]"><span>الإجمالي النهائي</span><span>${t.total} ج.م</span></div>
+            </div>` : ''}
+        </div>
+        ${state.cart.length ? `
+          <div class="p-4 bg-white border-t border-[#EFE6D8] shrink-0">
+            <button onclick="window.submitWhatsAppOrder()" ${!open ? 'disabled' : ''} class="w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 ${open ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md' : 'bg-stone-300 text-stone-500 cursor-not-allowed'}">
+              <i data-lucide="send" class="w-4 h-4"></i>إرسال الطلب عبر واتساب (${t.total} ج.م)
+            </button>
+          </div>` : ''}`);
+    };
+
+    window.cartStep = (idx, d) => { state.cart[idx].qty += d; if (state.cart[idx].qty <= 0) state.cart.splice(idx, 1); saveCart(); renderCartBar(); window.openCart(); };
+    window.cartRemove = (idx) => { state.cart.splice(idx, 1); saveCart(); renderCartBar(); window.openCart(); };
+    window.setOrderType = (t) => { state.order.type = t; window.openCart(); };
+    window.setOrderPay = (p) => { state.order.pay = p; window.openCart(); };
+    window.setOrderZone = (i) => { state.order.zoneIdx = Number(i); window.openCart(); };
+    window.setOrderField = (k, v) => { state.order[k] = v; };
+    window.copyInstaPay = () => copyText(state.data.instapay, 'تم نسخ حساب إنستاباي');
+    window.applyCoupon = () => {
+      const code = normalizeArabicInput(document.getElementById('couponInput')?.value || '').toUpperCase();
+      const found = (state.data.coupons || []).find(c => c.active !== false && c.code.toUpperCase() === code);
+      if (!found) return showToast('كود الخصم غير صحيح أو غير مفعل', 'error');
+      state.order.coupon = found; showToast('تم تفعيل الخصم بنجاح', 'success'); window.openCart();
+    };
+    window.removeCoupon = () => { state.order.coupon = null; window.openCart(); };
+    window.getGpsLocation = () => {
+      if (!navigator.geolocation) return showToast('المتصفح لا يدعم تحديد الموقع', 'error');
+      showToast('جاري تحديد موقعك الجغرافي...');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => { state.order.gps = `https://maps.google.com/?q=${pos.coords.latitude.toFixed(6)},${pos.coords.longitude.toFixed(6)}`; showToast('تم تحديد موقعك بنجاح', 'success'); window.openCart(); },
+        () => showToast('تعذر تحديد الموقع، يرجى تفعيل GPS', 'error'),
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    };
+
+    window.submitWhatsAppOrder = () => {
+      if (!isRestaurantOpen()) return showToast('المطعم مغلق حالياً', 'error');
+      const o = state.order, t = calcTotals();
+      if (o.type === 'dinein' && !normalizeArabicInput(o.table)) return showToast('يرجى إدخال رقم الطاولة', 'error');
+      if (o.type !== 'dinein' && (!o.name.trim() || !normalizeArabicInput(o.phone))) return showToast('يرجى إدخال الاسم ورقم الموبايل', 'error');
+      if (o.type === 'delivery' && !o.address.trim()) return showToast('يرجى إدخال العنوان بالتفصيل', 'error');
+      const typeLbl = o.type === 'dinein' ? 'صالة' : o.type === 'takeaway' ? 'تيك أواي' : 'توصيل (دليفري)';
+      const lines = [
+        `*طلب جديد - ${state.data.name}*`,
+        `نوع الطلب: *${typeLbl}*`,
+        o.type === 'dinein' ? `رقم الطاولة: ${normalizeArabicInput(o.table)}` : `العميل: ${o.name.trim()} | ${normalizeArabicInput(o.phone)}`,
+        ...(o.type === 'delivery' ? [`المنطقة: ${t.zone.name}`, `العنوان: ${o.address.trim()}`, ...(o.gps ? [`الموقع GPS: ${o.gps}`] : [])] : []),
+        `-------------------`,
+        ...state.cart.map((c, i) => `${i + 1}. ${c.name} × ${c.qty} = ${c.unitPrice * c.qty} ج.م${c.addons.length ? `\n   + إضافات: ${c.addons.join('، ')}` : ''}${c.note ? `\n   ملاحظة: ${c.note}` : ''}`),
+        `-------------------`,
+        `المجموع الفرعي: ${t.subtotal} ج.م`,
+        ...(t.discount > 0 ? [`الخصم (${o.coupon.code}): -${t.discount} ج.م`] : []),
+        ...(o.type === 'delivery' ? [`رسوم التوصيل: ${t.deliveryFee} ج.م`] : []),
+        `*الإجمالي النهائي: ${t.total} ج.م*`,
+        `طريقة الدفع: ${o.pay === 'instapay' ? 'إنستاباي (InstaPay)' : 'كاش'}`
+      ];
+      const waNum = normalizeArabicInput(state.data.whatsapp || state.data.phone).replace(/[^\d]/g, '');
+      window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
+      state.cart = []; saveCart(); renderCartBar(); window.closeModal();
+      showToast('تم إرسال الفاتورة إلى واتساب', 'success');
+    };
+
+    // Admin Login & 5-Tab Dashboard
+    window.openAdmin = () => {
+      if (!state.adminAuth) {
+        openModal(`
+          <div class="bg-[#7A1C1C] text-white px-4 py-3.5 flex items-center justify-between">
+            <h3 class="font-extrabold text-sm">دخول لوحة الإدارة</h3>
+            <button onclick="window.closeModal()" class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+          <form onsubmit="window.loginAdmin(event)" class="p-5 space-y-3">
+            <label class="text-xs font-bold text-[#6B5B53] block">كلمة المرور (الافتراضية: admin123)</label>
+            <input id="adminPwInput" type="password" required placeholder="أدخل كلمة المرور..." class="w-full bg-white border border-[#EFE6D8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#7A1C1C]" />
+            <button type="submit" class="w-full btn-brand py-3 rounded-xl font-extrabold text-sm">تسجيل الدخول</button>
+          </form>`);
+        setTimeout(() => document.getElementById('adminPwInput')?.focus(), 50);
+        return;
+      }
+      renderAdminPanel();
+    };
+
+    window.loginAdmin = (e) => {
+      e.preventDefault();
+      if (simpleHash(normalizeArabicInput(document.getElementById('adminPwInput')?.value || '')) === state.passHash) {
+        state.adminAuth = true; renderAdminPanel();
+      } else showToast('كلمة المرور غير صحيحة', 'error');
+    };
+
+    window.setAdminTab = (tab) => { state.adminTab = tab; state.editingItemId = null; state.confirmReset = false; renderAdminPanel(); };
+
+    function renderAdminPanel() {
+      const tabs = [['settings', 'الإعدادات والأصناف'], ['delivery', 'التوصيل'], ['addons', 'الإضافات'], ['coupons', 'الكوبونات'], ['sync', 'المزامنة والترخيص']];
+      const d = state.data;
+      let body = '';
+
+      if (state.adminTab === 'settings') {
+        const editItem = state.editingItemId ? d.items.find(i => i.id === state.editingItemId) : null;
+        const logoPreviewSrc = formatDirectImageUrl(d.logoUrl);
+        const bannerPreviewSrc = formatDirectImageUrl(d.bannerUrl);
+        body = `
+          ${state.viewOnlyMode ? `<a href="${DEV_WA}" target="_blank" rel="noopener" class="block w-full text-center py-3 px-4 rounded-2xl bg-gradient-to-l from-[#D4A017] to-[#b88910] text-[#231815] font-extrabold text-xs shadow-md">🔒 ترقية للباقة الاحترافية Pro عبر واتساب</a>` : ''}
+
+          <!-- Prominent Logo & Banner Management Card -->
+          <div class="bg-white border-2 border-[#D4A017]/50 rounded-2xl p-3.5 space-y-4 shadow-sm">
+            <div class="flex items-center justify-between border-b border-[#EFE6D8] pb-2">
+              <h4 class="font-extrabold text-sm text-[#7A1C1C] flex items-center gap-1.5"><i data-lucide="image" class="w-4 h-4 text-[#D4A017]"></i>الشعار والبانر</h4>
+              <span class="text-[10px] font-bold bg-amber-50 text-[#7A1C1C] px-2 py-0.5 rounded-full">يدعم Google Drive</span>
+            </div>
+
+            <!-- Logo Section -->
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <div id="adminLogoPrev" class="w-16 h-16 rounded-full bg-[#7A1C1C] p-0.5 border-2 border-[#D4A017] overflow-hidden shrink-0 shadow-sm flex items-center justify-center">
+                  ${logoPreviewSrc ? `<img src="${sanitize(logoPreviewSrc)}" class="w-full h-full rounded-full object-cover" onerror="this.parentElement.innerHTML=MONOGRAM_SVG" />` : MONOGRAM_SVG}
+                </div>
+                <div class="flex-1 min-w-0 space-y-1.5">
+                  <label class="text-xs font-extrabold text-[#231815] block">صورة الشعار (Logo)</label>
+                  <input id="s_logo" value="${sanitize(d.logoUrl)}" onchange="window.applyBrandUrl('logoUrl',this.value)" placeholder="رابط الشعار أو Google Drive..." class="w-full bg-[#FDFBF7] border border-[#EFE6D8] rounded-xl px-2.5 py-1.5 text-xs" />
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <label class="flex-1 btn-brand py-2 px-3 rounded-xl text-[11px] font-extrabold text-center cursor-pointer flex items-center justify-center gap-1.5">
+                  <i data-lucide="upload" class="w-3.5 h-3.5"></i>رفع شعار من الجهاز
+                  <input type="file" accept="image/*" class="hidden" onchange="window.uploadAsset('logoUrl',this.files[0],320)" />
+                </label>
+                <button type="button" onclick="window.clearAsset('logoUrl')" class="px-3.5 py-2 rounded-xl bg-red-50 text-red-700 border border-red-200 text-[11px] font-extrabold">مسح</button>
+              </div>
+            </div>
+
+            <!-- Banner Section -->
+            <div class="space-y-2 pt-3 border-t border-[#EFE6D8]">
+              <label class="text-xs font-extrabold text-[#231815] block">صورة الغلاف / البانر (Banner)</label>
+              <div id="adminBannerPrev" class="w-full h-24 rounded-xl overflow-hidden border border-[#EFE6D8] bg-gradient-to-br from-[#5A1212] to-[#7A1C1C] flex items-center justify-center">
+                ${bannerPreviewSrc ? `<img src="${sanitize(bannerPreviewSrc)}" class="w-full h-full object-cover" onerror="this.outerHTML='<span class=\\'text-xs font-bold text-amber-200\\'>لا توجد صورة بانر صالحة</span>'" />` : `<span class="text-xs font-bold text-amber-200/80">بدون بانر (خلفية عنابية أنيقة)</span>`}
+              </div>
+              <input id="s_banner" value="${sanitize(d.bannerUrl)}" onchange="window.applyBrandUrl('bannerUrl',this.value)" placeholder="رابط البانر أو Google Drive..." class="w-full bg-[#FDFBF7] border border-[#EFE6D8] rounded-xl px-2.5 py-1.5 text-xs" />
+              <div class="flex gap-2">
+                <label class="flex-1 bg-[#D4A017] hover:bg-[#b88910] text-[#231815] py-2 px-3 rounded-xl text-[11px] font-extrabold text-center cursor-pointer flex items-center justify-center gap-1.5">
+                  <i data-lucide="upload" class="w-3.5 h-3.5"></i>رفع بانر من الجهاز
+                  <input type="file" accept="image/*" class="hidden" onchange="window.uploadAsset('bannerUrl',this.files[0],1000)" />
+                </label>
+                <button type="button" onclick="window.clearAsset('bannerUrl')" class="px-3.5 py-2 rounded-xl bg-red-50 text-red-700 border border-red-200 text-[11px] font-extrabold">مسح</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Restaurant Info Settings -->
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-2.5">
+            <h4 class="font-extrabold text-xs text-[#7A1C1C]">بيانات المطعم والتواصل</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <input id="s_name" value="${sanitize(d.name)}" placeholder="اسم المطعم" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="s_phone" value="${sanitize(d.phone)}" placeholder="هاتف الاتصال" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="s_wa" value="${sanitize(d.whatsapp)}" placeholder="واتساب الطلبات (201...)" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="s_insta" value="${sanitize(d.instapay)}" placeholder="حساب إنستاباي" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="s_open" type="time" value="${sanitize(d.openTime)}" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="s_close" type="time" value="${sanitize(d.closeTime)}" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+            </div>
+            <input id="s_desc" value="${sanitize(d.desc || '')}" placeholder="وصف مختصر للمطعم" class="w-full border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+            <input id="s_addr" value="${sanitize(d.address)}" placeholder="العنوان" class="w-full border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+            <div class="grid grid-cols-2 gap-2">
+              <input id="s_fb" value="${sanitize(d.facebook)}" placeholder="رابط فيسبوك" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="s_ig" value="${sanitize(d.instagram)}" placeholder="رابط إنستجرام" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="s_tt" value="${sanitize(d.tiktok)}" placeholder="رابط تيك توك" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="s_map" value="${sanitize(d.mapsUrl)}" placeholder="رابط Google Maps" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+            </div>
+            <button onclick="window.saveSettings()" class="w-full btn-brand py-2.5 rounded-xl text-xs font-extrabold">حفظ جميع الإعدادات</button>
+          </div>
+
+          <!-- Add / Edit Item -->
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-2.5">
+            <h4 class="font-extrabold text-xs text-[#7A1C1C]">${editItem ? 'تعديل صنف' : 'إضافة صنف جديد'}</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <input id="it_name" value="${sanitize(editItem?.name || '')}" placeholder="اسم الصنف *" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="it_cat" value="${sanitize(editItem?.category || '')}" placeholder="القسم *" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="it_price" type="number" value="${editItem ? Number(editItem.price) : ''}" placeholder="السعر *" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="it_img" value="${sanitize(editItem?.image || '')}" placeholder="رابط الصورة (أو Drive)" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+            </div>
+            <input id="it_desc" value="${sanitize(editItem?.desc || '')}" placeholder="وصف مختصر للصنف" class="w-full border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+            <div class="flex gap-2">
+              <label class="px-3 py-2 rounded-xl bg-[#FDFBF7] border border-[#EFE6D8] text-[11px] font-bold cursor-pointer shrink-0">رفع صورة<input type="file" accept="image/*" class="hidden" onchange="window.uploadItemImage(this.files[0])" /></label>
+              <button onclick="window.saveItem()" class="flex-1 btn-brand py-2 rounded-xl text-xs font-extrabold">${editItem ? 'تحديث الصنف' : '+ إضافة للمنيو'}</button>
+              ${editItem ? `<button onclick="window.cancelEditItem()" class="px-3 py-2 rounded-xl bg-stone-200 text-xs font-bold">إلغاء</button>` : ''}
+            </div>
+          </div>
+
+          <!-- Items List -->
+          <div class="space-y-2">
+            <h4 class="font-extrabold text-xs text-[#6B5B53]">قائمة الأصناف (${d.items.length})</h4>
+            ${d.items.map(it => `
+              <div class="bg-white border border-[#EFE6D8] rounded-xl p-2.5 flex items-center justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <p class="font-bold text-xs truncate">${sanitize(it.name)} <span class="text-[#7A1C1C]">(${it.price} ج.م)</span></p>
+                  <p class="text-[10px] text-[#6B5B53] truncate">${sanitize(it.category)}</p>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button onclick="window.toggleItemAvail('${sanitize(it.id)}')" class="px-2 py-1 rounded-lg text-[10px] font-bold ${it.available !== false ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-200 text-stone-600'}">${it.available !== false ? 'متاح' : 'مخفي'}</button>
+                  <button onclick="window.editItem('${sanitize(it.id)}')" class="p-1.5 rounded-lg bg-amber-50 text-[#D4A017]"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="window.deleteItem('${sanitize(it.id)}')" class="p-1.5 rounded-lg bg-red-50 text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>`).join('')}
+          </div>`;
+      } else if (state.adminTab === 'delivery') {
+        body = `
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-2">
+            <h4 class="font-extrabold text-xs text-[#7A1C1C]">إضافة منطقة توصيل</h4>
+            <div class="flex gap-2">
+              <input id="z_name" placeholder="اسم المنطقة" class="flex-1 border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="z_fee" type="number" placeholder="الرسوم" class="w-24 border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <button onclick="window.addZone()" class="btn-brand px-4 rounded-xl text-xs font-extrabold">إضافة</button>
+            </div>
+          </div>
+          <div class="space-y-2">
+            ${d.zones.map((z, i) => `
+              <div class="bg-white border border-[#EFE6D8] rounded-xl p-3 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-1">
+                  <input value="${sanitize(z.name)}" onchange="window.updateZone(${i},'name',this.value)" class="flex-1 bg-[#FDFBF7] border border-[#EFE6D8] rounded-lg px-2 py-1 text-xs font-bold" />
+                  <input type="number" value="${Number(z.fee)}" onchange="window.updateZone(${i},'fee',this.value)" class="w-20 bg-[#FDFBF7] border border-[#EFE6D8] rounded-lg px-2 py-1 text-xs font-bold text-center" />
+                </div>
+                <button onclick="window.deleteZone(${i})" class="p-1.5 rounded-lg bg-red-50 text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+              </div>`).join('')}
+          </div>`;
+      } else if (state.adminTab === 'addons') {
+        body = `
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-2">
+            <h4 class="font-extrabold text-xs text-[#7A1C1C]">إضافة خيار جديد</h4>
+            <div class="flex gap-2">
+              <input id="a_name" placeholder="اسم الإضافة" class="flex-1 border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <input id="a_price" type="number" placeholder="السعر" class="w-24 border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+              <button onclick="window.addAddon()" class="btn-brand px-4 rounded-xl text-xs font-extrabold">إضافة</button>
+            </div>
+          </div>
+          <div class="space-y-2">
+            ${d.addons.map((a, i) => `
+              <div class="bg-white border border-[#EFE6D8] rounded-xl p-3 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-1">
+                  <input value="${sanitize(a.name)}" onchange="window.updateAddon(${i},'name',this.value)" class="flex-1 bg-[#FDFBF7] border border-[#EFE6D8] rounded-lg px-2 py-1 text-xs font-bold" />
+                  <input type="number" value="${Number(a.price)}" onchange="window.updateAddon(${i},'price',this.value)" class="w-20 bg-[#FDFBF7] border border-[#EFE6D8] rounded-lg px-2 py-1 text-xs font-bold text-center" />
+                </div>
+                <button onclick="window.deleteAddon(${i})" class="p-1.5 rounded-lg bg-red-50 text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+              </div>`).join('')}
+          </div>`;
+      } else if (state.adminTab === 'coupons') {
+        body = `
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 flex items-center justify-between">
+            <span class="text-xs font-extrabold">تفعيل الكوبونات في السلة</span>
+            <input type="checkbox" ${d.couponsEnabled ? 'checked' : ''} onchange="window.toggleCouponsMaster(this.checked)" class="w-5 h-5 accent-[#7A1C1C]" />
+          </div>
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-2">
+            <h4 class="font-extrabold text-xs text-[#7A1C1C]">إضافة كوبون خصم</h4>
+            <div class="grid grid-cols-3 gap-2">
+              <input id="c_code" placeholder="الكود" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs uppercase" />
+              <select id="c_type" class="border border-[#EFE6D8] rounded-xl px-2 py-2 text-xs"><option value="percent">نسبة %</option><option value="fixed">مبلغ ج.م</option></select>
+              <input id="c_val" type="number" placeholder="القيمة" class="border border-[#EFE6D8] rounded-xl px-2.5 py-2 text-xs" />
+            </div>
+            <button onclick="window.addCoupon()" class="w-full btn-brand py-2 rounded-xl text-xs font-extrabold">+ إضافة الكوبون</button>
+          </div>
+          <div class="space-y-2">
+            ${(d.coupons || []).map((c, i) => `
+              <div class="bg-white border border-[#EFE6D8] rounded-xl p-3 flex items-center justify-between">
+                <div class="text-xs"><strong class="text-[#7A1C1C]">${sanitize(c.code)}</strong> — ${Number(c.value)} ${c.type === 'percent' ? '%' : 'ج.م'}</div>
+                <button onclick="window.deleteCoupon(${i})" class="p-1.5 rounded-lg bg-red-50 text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+              </div>`).join('')}
+          </div>`;
+      } else {
+        body = `
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-2.5">
+            <h4 class="font-extrabold text-xs text-[#7A1C1C]">استيراد وتصدير Excel (4 شيتات)</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="window.exportExcel()" class="py-2.5 px-3 rounded-xl bg-emerald-700 text-white text-xs font-extrabold">تصدير Excel</button>
+              <label class="py-2.5 px-3 rounded-xl bg-[#D4A017] text-[#231815] text-xs font-extrabold text-center cursor-pointer">استيراد Excel<input type="file" accept=".xlsx,.xls" class="hidden" onchange="window.importExcelFile(this.files[0])" /></label>
+            </div>
+          </div>
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-2">
+            <h4 class="font-extrabold text-xs text-[#7A1C1C]">لصق سريع للأصناف (CSV / TSV)</h4>
+            <p class="text-[10px] text-[#6B5B53]">السطر: الاسم , القسم , السعر , الوصف , رابط الصورة</p>
+            <textarea id="pasteBox" rows="3" placeholder="كباب ضاني,المشويات,280,كباب على الفحم" class="w-full border border-[#EFE6D8] rounded-xl p-2.5 text-xs"></textarea>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="window.importPaste(false)" class="py-2 rounded-xl bg-[#7A1C1C] text-white text-xs font-bold">إضافة للمنيو</button>
+              <button onclick="window.importPaste(true)" class="py-2 rounded-xl bg-stone-700 text-white text-xs font-bold">استبدال المنيو</button>
+            </div>
+          </div>
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-2">
+            <h4 class="font-extrabold text-xs text-[#7A1C1C]">المزامنة الصامتة مع Google Sheets</h4>
+            <input id="sheetUrlInp" value="${sanitize(state.sheetUrl)}" placeholder="رابط Google Sheet العام..." class="w-full border border-[#EFE6D8] rounded-xl px-3 py-2 text-xs" />
+            <button onclick="window.saveAndSyncSheet()" class="w-full btn-brand py-2 rounded-xl text-xs font-extrabold">حفظ الرابط والمزامنة الآن</button>
+          </div>
+          <div class="bg-white border border-[#EFE6D8] rounded-2xl p-3.5 space-y-2">
+            <h4 class="font-extrabold text-xs text-[#7A1C1C]">الأمان وضبط المصنع</h4>
+            <div class="flex gap-2">
+              <input id="newPwInp" type="password" placeholder="كلمة مرور جديدة..." class="flex-1 border border-[#EFE6D8] rounded-xl px-3 py-2 text-xs" />
+              <button onclick="window.changeAdminPw()" class="px-4 py-2 rounded-xl bg-[#231815] text-white text-xs font-bold">تغيير</button>
+            </div>
+            <button onclick="window.factoryReset()" class="w-full py-2 rounded-xl text-xs font-extrabold ${state.confirmReset ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 border border-red-200'}">
+              ${state.confirmReset ? 'اضغط مرة أخرى لتأكيد استعادة ضبط المصنع' : 'استعادة ضبط المصنع'}
+            </button>
+          </div>
+          <div class="bg-[#231815] text-white rounded-2xl p-3.5 space-y-2.5 border border-[#D4A017]">
+            <h4 class="font-extrabold text-xs text-[#D4A017]">منطقة المطور والترخيص (Vendor)</h4>
+            ${!state.vendorUnlocked
+              ? `<div class="flex gap-2"><input id="vendorKeyInp" type="password" placeholder="مفتاح الترخيص..." class="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs text-white placeholder-white/50" /><button onclick="window.unlockVendor()" class="px-4 py-2 rounded-xl bg-[#D4A017] text-[#231815] text-xs font-extrabold">فتح</button></div>`
+              : `<div class="space-y-2.5">
+                  <div class="flex items-center justify-between bg-white/10 rounded-xl p-2.5">
+                    <span class="text-xs font-bold">الباقة: ${state.viewOnlyMode ? 'العرض الذكي (View-Only)' : 'الاحترافية (Pro)'}</span>
+                    <button onclick="window.togglePackageMode()" class="px-3 py-1.5 rounded-lg bg-[#D4A017] text-[#231815] text-[11px] font-extrabold">تبديل الوضع</button>
+                  </div>
+                  <button onclick="window.exportHtml()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold">تصدير ملف HTML نظيف للعملاء</button>
+                </div>`}
+          </div>`;
+      }
+
+      openModal(`
+        <div class="bg-[#7A1C1C] text-white px-4 py-3 flex items-center justify-between shrink-0">
+          <h3 class="font-extrabold text-sm">لوحة إدارة المنيو</h3>
+          <button onclick="window.closeModal()" class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="flex gap-1.5 overflow-x-auto no-scrollbar bg-white border-b border-[#EFE6D8] px-3 py-2 shrink-0">
+          ${tabs.map(([k, lbl]) => `<button onclick="window.setAdminTab('${k}')" class="shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-extrabold ${state.adminTab === k ? 'bg-[#7A1C1C] text-white' : 'bg-[#FDFBF7] text-[#6B5B53]'}">${lbl}</button>`).join('')}
+        </div>
+        <div class="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">${body}</div>`);
+    }
+
+    // Admin Actions (Logo, Banner, Settings, CRUD)
+    window.applyBrandUrl = (key, val) => {
+      state.data[key] = (val || '').trim();
+      saveData(); renderAll(); renderAdminPanel();
+      showToast(key === 'logoUrl' ? 'تم تحديث رابط الشعار' : 'تم تحديث رابط البانر', 'success');
+    };
+    window.uploadAsset = (key, file, maxW) => compressImage(file, maxW, 0.78, (dataUrl) => {
+      state.data[key] = dataUrl; saveData(); renderAll(); renderAdminPanel();
+      showToast(key === 'logoUrl' ? 'تم ضغط وحفظ الشعار بنجاح' : 'تم ضغط وحفظ البانر بنجاح', 'success');
+    });
+    window.clearAsset = (key) => {
+      state.data[key] = ''; saveData(); renderAll(); renderAdminPanel();
+      showToast(key === 'logoUrl' ? 'تمت استعادة شعار المونوغرام' : 'تم مسح صورة البانر', 'info');
+    };
+    window.saveSettings = () => {
+      const g = (id) => document.getElementById(id)?.value.trim() || '';
+      Object.assign(state.data, {
+        name: g('s_name') || state.data.name, desc: g('s_desc'),
+        phone: normalizeArabicInput(g('s_phone')), whatsapp: normalizeArabicInput(g('s_wa')),
+        instapay: g('s_insta'), openTime: g('s_open') || '12:00', closeTime: g('s_close') || '02:00',
+        address: g('s_addr'), facebook: g('s_fb'), instagram: g('s_ig'),
+        tiktok: g('s_tt'), mapsUrl: g('s_map'), logoUrl: g('s_logo'), bannerUrl: g('s_banner')
+      });
+      saveData(); renderAll(); renderAdminPanel(); showToast('تم حفظ جميع الإعدادات بنجاح', 'success');
+    };
+    window.uploadItemImage = (file) => compressImage(file, 800, 0.75, (dataUrl) => {
+      const inp = document.getElementById('it_img'); if (inp) inp.value = dataUrl; showToast('تم ضغط صورة الصنف', 'success');
+    });
+    window.saveItem = () => {
+      const name = document.getElementById('it_name').value.trim(), category = document.getElementById('it_cat').value.trim();
+      const price = Number(normalizeArabicInput(document.getElementById('it_price').value));
+      const desc = document.getElementById('it_desc').value.trim(), image = document.getElementById('it_img').value.trim();
+      if (!name || !category || isNaN(price)) return showToast('يرجى إدخال الاسم والقسم والسعر', 'error');
+      if (state.editingItemId) {
+        const it = state.data.items.find(i => i.id === state.editingItemId);
+        if (it) Object.assign(it, { name, category, price, desc, image });
+        state.editingItemId = null;
+      } else state.data.items.push({ id: 'i' + Date.now(), name, category, price, desc, image, available: true });
+      saveData(); renderAll(); renderAdminPanel(); showToast('تم حفظ الصنف بنجاح', 'success');
+    };
+    window.editItem = (id) => { state.editingItemId = id; renderAdminPanel(); };
+    window.cancelEditItem = () => { state.editingItemId = null; renderAdminPanel(); };
+    window.deleteItem = (id) => { state.data.items = state.data.items.filter(i => i.id !== id); saveData(); renderAll(); renderAdminPanel(); };
+    window.toggleItemAvail = (id) => { const it = state.data.items.find(i => i.id === id); if (it) { it.available = it.available === false; saveData(); renderAll(); renderAdminPanel(); } };
+
+    window.addZone = () => {
+      const name = document.getElementById('z_name').value.trim(), fee = Number(normalizeArabicInput(document.getElementById('z_fee').value));
+      if (!name || isNaN(fee)) return showToast('أدخل اسم المنطقة والرسوم', 'error');
+      state.data.zones.push({ name, fee }); saveData(); renderAdminPanel();
+    };
+    window.updateZone = (i, k, v) => { state.data.zones[i][k] = k === 'fee' ? Number(normalizeArabicInput(v)) : v.trim(); saveData(); };
+    window.deleteZone = (i) => { state.data.zones.splice(i, 1); saveData(); renderAdminPanel(); };
+
+    window.addAddon = () => {
+      const name = document.getElementById('a_name').value.trim(), price = Number(normalizeArabicInput(document.getElementById('a_price').value));
+      if (!name || isNaN(price)) return showToast('أدخل اسم الإضافة والسعر', 'error');
+      state.data.addons.push({ name, price }); saveData(); renderAdminPanel();
+    };
+    window.updateAddon = (i, k, v) => { state.data.addons[i][k] = k === 'price' ? Number(normalizeArabicInput(v)) : v.trim(); saveData(); };
+    window.deleteAddon = (i) => { state.data.addons.splice(i, 1); saveData(); renderAdminPanel(); };
+
+    window.toggleCouponsMaster = (v) => { state.data.couponsEnabled = v; saveData(); };
+    window.addCoupon = () => {
+      const code = normalizeArabicInput(document.getElementById('c_code').value).toUpperCase();
+      const type = document.getElementById('c_type').value, value = Number(normalizeArabicInput(document.getElementById('c_val').value));
+      if (!code || !value) return showToast('أكمل بيانات الكوبون', 'error');
+      state.data.coupons = state.data.coupons || [];
+      state.data.coupons.push({ code, type, value, active: true }); saveData(); renderAdminPanel();
+    };
+    window.deleteCoupon = (i) => { state.data.coupons.splice(i, 1); saveData(); renderAdminPanel(); };
+
+    window.changeAdminPw = () => {
+      const pw = normalizeArabicInput(document.getElementById('newPwInp')?.value || '');
+      if (pw.length < 4) return showToast('كلمة المرور يجب أن تكون 4 أحرف على الأقل', 'error');
+      state.passHash = simpleHash(pw); lsSet('passHash', state.passHash); showToast('تم تحديث كلمة المرور', 'success');
+    };
+    window.factoryReset = () => {
+      if (!state.confirmReset) { state.confirmReset = true; renderAdminPanel(); return; }
+      ['data', 'cart', 'sheetUrl', 'passHash', 'viewOnly'].forEach(k => localStorage.removeItem(STORE_ID + '_' + k));
+      state.data = JSON.parse(JSON.stringify(DEFAULT_DATA)); state.cart = []; state.sheetUrl = DEFAULT_SHEET_URL;
+      state.passHash = DEFAULT_PASS_HASH; state.viewOnlyMode = DEFAULT_VIEW_ONLY; state.confirmReset = false;
+      renderAll(); renderAdminPanel(); showToast('تمت استعادة الإعدادات الافتراضية', 'success');
+    };
+    window.unlockVendor = () => {
+      if (checkVendorKey(document.getElementById('vendorKeyInp')?.value || '')) { state.vendorUnlocked = true; renderAdminPanel(); showToast('تم فتح منطقة المطور', 'success'); }
+      else showToast('مفتاح الترخيص غير صحيح', 'error');
+    };
+    window.togglePackageMode = () => {
+      state.viewOnlyMode = !state.viewOnlyMode; lsSet('viewOnly', state.viewOnlyMode);
+      renderAll(); renderAdminPanel(); showToast(state.viewOnlyMode ? 'تم التبديل لوضع العرض الذكي' : 'تم تفعيل الباقة الاحترافية Pro', 'success');
+    };
+
+    // Excel 4-Sheet Import/Export & Silent Google Sheets Sync
+    function parseWorkbook(wb) {
+      const getS = (n) => wb.Sheets[n] ? XLSX.utils.sheet_to_json(wb.Sheets[n]) : null;
+      const mRows = getS('المنيو');
+      if (mRows && mRows.length) {
+        state.data.items = mRows.filter(r => r.name).map((r, i) => ({
+          id: String(r.id || ('x' + i)), name: String(r.name), category: String(r.category || 'عام'),
+          price: Number(normalizeArabicInput(r.price)) || 0, desc: String(r.desc || ''),
+          image: String(r.image || ''), available: r.available !== false && String(r.available).toLowerCase() !== 'false' && r.available !== 0
+        }));
+      }
+      const zRows = getS('مناطق التوصيل');
+      if (zRows && zRows.length) state.data.zones = zRows.filter(r => r.name).map(r => ({ name: String(r.name), fee: Number(normalizeArabicInput(r.fee)) || 0 }));
+      const aRows = getS('الإضافات');
+      if (aRows && aRows.length) state.data.addons = aRows.filter(r => r.name).map(r => ({ name: String(r.name), price: Number(normalizeArabicInput(r.price)) || 0 }));
+      const sRows = getS('الإعدادات');
+      if (sRows && sRows.length) {
+        const allowed = ['name', 'desc', 'phone', 'whatsapp', 'instapay', 'address', 'openTime', 'closeTime', 'bannerUrl', 'logoUrl', 'facebook', 'instagram', 'tiktok', 'mapsUrl', 'couponsEnabled'];
+        sRows.forEach(r => {
+          const k = String(r.key || '').trim();
+          if (k === 'viewOnlyMode' || !allowed.includes(k)) return;
+          state.data[k] = k === 'couponsEnabled' ? (r.value === true || String(r.value).toLowerCase() === 'true') : String(r.value ?? '');
+        });
+      }
+      saveData(); renderAll();
+    }
+
+    window.exportExcel = () => {
+      if (!window.XLSX) return showToast('مكتبة Excel غير محملة', 'error');
+      const d = state.data, wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.items), 'المنيو');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.zones), 'مناطق التوصيل');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d.addons), 'الإضافات');
+      const keys = ['name', 'desc', 'phone', 'whatsapp', 'instapay', 'address', 'openTime', 'closeTime', 'logoUrl', 'bannerUrl', 'facebook', 'instagram', 'tiktok', 'mapsUrl', 'couponsEnabled'];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(keys.map(k => ({ key: k, value: d[k] }))), 'الإعدادات');
+      XLSX.writeFile(wb, `${STORE_ID}.xlsx`); showToast('تم تصدير ملف Excel بنجاح', 'success');
+    };
+
+    window.importExcelFile = (file) => {
+      if (!file || !window.XLSX) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try { parseWorkbook(XLSX.read(new Uint8Array(e.target.result), { type: 'array' })); renderAdminPanel(); showToast('تم استيراد البيانات بنجاح', 'success'); }
+        catch { showToast('ملف Excel غير صالح', 'error'); }
+      };
+      reader.readAsArrayBuffer(file);
+    };
+
+    window.importPaste = (replace) => {
+      const txt = (document.getElementById('pasteBox')?.value || '').trim();
+      if (!txt) return showToast('الصق البيانات أولاً', 'error');
+      const items = txt.split(/\r?\n/).map((line, i) => {
+        const p = line.split(line.includes('\t') ? '\t' : ',').map(x => x.trim());
+        return p[0] ? { id: 'p' + Date.now() + i, name: p[0], category: p[1] || 'عام', price: Number(normalizeArabicInput(p[2])) || 0, desc: p[3] || '', image: p[4] || '', available: true } : null;
+      }).filter(Boolean);
+      if (!items.length) return showToast('لم يتم العثور على أصناف صالحة', 'error');
+      state.data.items = replace ? items : [...state.data.items, ...items];
+      saveData(); renderAll(); renderAdminPanel(); showToast(`تم استيراد ${items.length} صنف`, 'success');
+    };
+
+    async function syncFromSheet(url, silent = false) {
+      if (!url || !window.XLSX) return;
+      const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      const exportUrl = m ? `https://docs.google.com/spreadsheets/d/${m[1]}/export?format=xlsx` : url;
+      const fetchWithTimeout = async (u) => {
+        const ctrl = new AbortController(), tid = setTimeout(() => ctrl.abort(), 6000);
+        try { const res = await fetch(u, { signal: ctrl.signal }); if (!res.ok) throw new Error('HTTP'); return await res.arrayBuffer(); }
+        finally { clearTimeout(tid); }
+      };
+      try {
+        let buf;
+        try { buf = await fetchWithTimeout(exportUrl); }
+        catch { buf = await fetchWithTimeout('https://api.allorigins.win/raw?url=' + encodeURIComponent(exportUrl)); }
+        parseWorkbook(XLSX.read(new Uint8Array(buf), { type: 'array' }));
+        if (!silent) { renderAdminPanel(); showToast('تمت المزامنة مع Google Sheets', 'success'); }
+      } catch { if (!silent) showToast('تعذرت المزامنة، تأكد من أن الشيت عام', 'error'); }
+    }
+
+    window.saveAndSyncSheet = () => {
+      state.sheetUrl = (document.getElementById('sheetUrlInp')?.value || '').trim();
+      lsSet('sheetUrl', state.sheetUrl);
+      if (state.sheetUrl) syncFromSheet(state.sheetUrl, false); else showToast('تم مسح رابط المزامنة', 'success');
+    };
+
+    // Clean HTML Export (Embeds Updated Logo, Banner & Config, Clears Modals)
+    window.exportHtml = () => {
+      const clone = document.documentElement.cloneNode(true);
+      ['modalContainer', 'toastContainer', 'menuList', 'catTabs', 'footerContent'].forEach(id => {
+        const el = clone.querySelector('#' + id); if (el) el.innerHTML = '';
+      });
+      const cartBar = clone.querySelector('#cartBar'); if (cartBar) cartBar.classList.add('hidden');
+      const safeJson = JSON.stringify(state.data).replace(/<\/script/gi, '<\\/script');
+      const newCfg = `/*MT_CFG_START*/\n    let DEFAULT_VIEW_ONLY = ${JSON.stringify(state.viewOnlyMode)};\n    let DEFAULT_SHEET_URL = ${JSON.stringify(state.sheetUrl)};\n    let DEFAULT_PASS_HASH = ${JSON.stringify(state.passHash)};\n    let DEFAULT_DATA = ${safeJson};\n    /*MT_CFG_END*/`;
+      let html = ('<!DOCTYPE html>\n' + clone.outerHTML).replace(/\/\*MT_CFG_START\*\/[\s\S]*?\/\*MT_CFG_END\*\//, newCfg);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+      a.download = 'index.html'; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+      showToast('تم تصدير ملف index.html النظيف بنجاح', 'success');
+    };
+
+    // Bootstrap
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAll();
+      if (state.sheetUrl) syncFromSheet(state.sheetUrl, true);
+    });
+  </script>
+</body>
+</html>
